@@ -1,0 +1,28 @@
+
+Project Name: Tech Assistant
+Version: 0.1 (Spec Draft)
+
+
+
+Technician Assistant
+
+Purpose:
+A technician-focused assistant app designed to reduce paperwork,
+prevent QC rejections, and help organize daily vehicle installation work.
+
+Core Principle:
+The system documents work artifacts, not worker behavior.
+
+Project Name: Tech Assistant
+Version: 0.1 (Spec Draft)
+
+Project Title:
+Technician Assistant
+
+Purpose:
+A technician-focused assistant application designed to reduce paperwork,
+prevent quality control (QC) rejections, and help organize daily vehicle
+installation work.
+
+Core Principle:
+The system documents work artifacts, not worker behavior.
