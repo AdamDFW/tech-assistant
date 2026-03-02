@@ -5,14 +5,24 @@ import os
 import json
 import time
 import zipfile
+from services.vin_service import normalize_vin, last6_from_vin
+from services.validation.velogitech_rules import validate_velogitech
 from datetime import datetime
 from pathlib import Path
+def ensure_work_order():
+    if "work_order" not in st.session_state:
+        st.session_state["work_order"] = {
+            "project": "",
+            "unit": "",
+            "vin": "",
+            "vin_last6": "",
+            "photos": [],  # each: {"path":..., "type":"vin_plate", ...}
+        }
 
-st.write("RUNNING FILE:", os.path.abspath(__file__))
-st.write("WORKING DIR:", os.getcwd())
+ensure_work_order()
+wo = st.session_state["work_order"]
 
-
-APP_NAME = "Tech Assistant v0.1"
+APP_NAME = "Tech X2 v0.1"
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
 
@@ -20,8 +30,6 @@ DATA_DIR.mkdir(exist_ok=True)
 RECENT_PATH = DATA_DIR / "_recent.json"
 RECENT_MAX = 10
 
-
-st.write("CURRENT RECENT PATH:", str(RECENT_PATH.resolve()))
 
 
 def safe_name(s: str) -> str:
@@ -108,7 +116,6 @@ def export_bundle(project: str, unit: str) -> Path:
 
 RECENT_MAX = 10  # keep a little history, we’ll display last 3
 
-st.write("CURRENT RECENT PATH:", str(RECENT_PATH.resolve()))
 
 def load_recent() -> list[dict]:
     if RECENT_PATH.exists():
@@ -182,10 +189,8 @@ if not active_project or not active_unit:
     st.markdown("### Quick Start")
 
     recent = load_recent()
-    st.write("DEBUG recent count:", len(recent))
-    st.write("DEBUG recent path:", str(RECENT_PATH.resolve()))
-    st.caption(f"RECENT PATH: {RECENT_PATH.resolve()}")
-             
+    
+         
     if recent:
         st.markdown("#### Recent Units")
         top3 = recent[:3]
@@ -230,13 +235,20 @@ udir.mkdir(parents=True, exist_ok=True)
 
 meta = load_meta(active_project, active_unit)
 # Capture section
-st.markdown("## 📸 Capture Photo")
 
-uploads = st.file_uploader(
-    "Tap to capture or select photo",
-    type=["jpg", "jpeg", "png", "webp"],
-    accept_multiple_files=True,
+tab_home, tab_capture, tab_timeline, tab_export = st.tabs(
+    ["🏠 Home", "📸 Capture", "🧾 Timeline", "📦 Export"]
 )
+
+with tab_capture:
+    st.markdown("## 📸 Capture Photo")
+
+    uploads = st.file_uploader(
+        "Tap to capture or select photo",
+        type=["jpg", "jpeg", "png", "webp"],
+        accept_multiple_files=True,
+    )
+
 
 
 note = st.text_input("Optional note for this batch (e.g., 'VIN plate', 'curb side front hub')")
